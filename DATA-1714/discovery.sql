@@ -1,33 +1,32 @@
 select 
-	 entity.name 						as vendor
-	,brand.brand_name					as brand
-	,po.create_date 					as po_date
-	,po.trandate  						as po_date2
+	 entity.name 								as vendor
+	,brand.brand_name							as brand
+	,po.create_date 							as po_date
+	,po.trandate  								as po_date2
 	,po.ship_date 
-	,po.original_ship_date 				as __original_ship_date
+	,po.original_ship_date 				        as __original_ship_date
 	,po.cancel_date 
-	,po.original_cancel_date 			as __original_cancel_date
-	,po.tranid 							as po_number
-	,merch.merchandise_division_name	as merchandise_division
-	,type.list_item_name 				as po_type
-	,season.list_item_name 				as season_code
-	,year.list_item_name 				as season_year
-	,employ .full_name					as buyer 
-	,lines.transaction_line_id			as line_id
-	,item.item_extid 					as sku 
+	,po.original_cancel_date 			        as __original_cancel_date
+	,po.tranid 									as po_number
+	,merch.merchandise_division_name	        as merchandise_division
+	,type.list_item_name 					    as po_type
+	,season.list_item_name 				        as season_code
+	,year.list_item_name 					    as season_year
+	,employ .full_name						    as buyer 
+	,lines.transaction_line_id		            as line_id
+	,item.item_extid 							as sku 
 	,lines.vendor_sku	
-	,item.upc_code 						as upc 
+	,item.upc_code 								as upc 
 	,lines.memo
 	,lines.expected_arrival_eta_line						
-	,lines.item_count 					as quantity_in_transaction_unit
-	,lines.original_transmitted_qty
-	,'------'							as quantity_fulfilled_received
-	,lines.quantity_received_in_shipment
-	,lines.number_billed 				as quantity_billed
-	,'------'							as qty_in_transit
-	,uom.name							as units
-	,lines.acknowledgment_rate			as rate1__
-	,lines.item_unit_price 				as rate2__
+	,lines.item_count 						    as quantity_in_transaction_unit
+	,lines.original_transmitted_qty				
+	,lines.quantity_received_in_shipment        as quantity_fulfilled_received
+	,lines.number_billed 					    as quantity_billed
+	,(lines.asn_quantity_shipped - lines.quantity_received_in_shipment)	as qty_in_transit
+	,uom.name									as units
+	,lines.item_unit_price		                as rate1__
+	,lines.acknowledgment_rate 		            as rate2__
 	,lines.discount_amount 
 	,lines.purchase_price 
 	,lines.amount 
@@ -35,11 +34,15 @@ select
 	,lines.asn_quantity_shipped 
 	,lines.asn_shipment_date 
 	,lines.asn_estimated_delivery_date 
-	,po.n_860_last_execution_timestamp 	as _860_sent
+	,po.n_860_last_execution_timestamp 	        as _860_sent
 	,po.status 
-	,'------'							as in_tansit_windows
-	,'------'							as transit_window_edn
-,po.transaction_id , po.entity_id, po.external_id, po.sales_rep_id, po.tranid, po.po_batch_name, po.transaction_extid, po.transaction_number  
+	,CASE WHEN current_date <=
+		(
+			CASE WHEN cast(lines.asn_estimated_delivery_date as date) + 14 is not Null THEN cast(lines.asn_estimated_delivery_date as date)+14 
+			ELSE cast(lines.asn_shipment_date as date) + 14 END 
+		) THEN 'Yes' ELSE 'No' END                          as in_transit_window
+	,CASE WHEN cast(lines.asn_estimated_delivery_date as date) + 14 is not Null THEN  cast(lines.asn_estimated_delivery_date as date) + 14 
+	ELSE  cast(lines.asn_shipment_date as date) + 14 END 	as transit_window_end
 from 
 	ns_transactions.transactions po
 left join
@@ -63,5 +66,4 @@ left join
 left join
 	netsuite_sc.uom uom ON cast(item.uom_id as int64) = cast(uom.uom_id as int64)
 where po.create_date > '2021-05-01' and po.transaction_type ='Purchase Order'
---and po.tranid in ('12186207557') and  lines.transaction_line_id=20
-and po.tranid in ('12229298372') --and  lines.transaction_line_id=8
+and po.tranid in ('12182221512') and  lines.transaction_line_id=11
