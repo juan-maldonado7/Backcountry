@@ -42,6 +42,6 @@ left join
   netsuite2.address_book address ON vendor.vendor_id=address.entity_id
 where companyname is not null 
 --------Edit the VENDOR_ID
-and companyname='100% Speedlab'
+and companyname='Adidas'
 ----------------------------
 group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18
