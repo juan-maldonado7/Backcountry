@@ -45,24 +45,11 @@ with po_details as
 )
 select 
 	 merchandise_division
-  ,assigned_to_id
-  ,assigned_to
 	,max(count_vendors) as count_vendors
 	,max(count_orders) as count_orders
+  ,assigned_to_id
+  ,assigned_to
 	,count(*) as count_problems_lines
 from po_details
 group by merchandise_division	, assigned_to_id, assigned_to 
 order by merchandise_division asc
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
