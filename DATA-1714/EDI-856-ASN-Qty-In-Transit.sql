@@ -1,31 +1,31 @@
 select 
-         entity.name                                                                 as vendor
-        ,brand.brand_name                                                        as brand
-        ,po.create_date                                                         as po_date
-        --,po.trandate                                                                  as po_date2
+         entity.name                      	as vendor
+        ,brand.brand_name                	as brand
+        ,po.create_date                   	as po_date
+        --,po.trandate                   	as po_date2
         ,po.ship_date 
-        --,po.original_ship_date                                         as __original_ship_date
+        --,po.original_ship_date         	as __original_ship_date
         ,po.cancel_date 
-        --,po.original_cancel_date                                 as __original_cancel_date
-        ,po.tranid                                                                         as po_number
-        ,merch.merchandise_division_name                as merchandise_division
-        ,type.list_item_name                                             as po_type
-        ,season.list_item_name                                         as season_code
-        ,year.list_item_name                                             as season_year
-        ,employ .full_name                                                    as buyer 
-        ,lines.transaction_line_id                            as line_id
-        ,item.item_extid                                                         as sku 
+        --,po.original_cancel_date         	as __original_cancel_date
+        ,po.tranid                         	as po_number
+        ,merch.merchandise_division_name   	as merchandise_division
+        ,type.list_item_name               	as po_type
+        ,season.list_item_name             	as season_code
+        ,year.list_item_name               	as season_year
+        ,employ .full_name                	as buyer 
+        ,lines.transaction_line_id          as line_id
+        ,item.item_extid                    as sku 
         ,lines.vendor_sku        
-        ,item.upc_code                                                                 as upc 
+        ,item.upc_code                      as upc 
         ,lines.memo
         ,lines.expected_arrival_eta_line                                                
-        ,lines.item_count                                                     as quantity_in_transaction_unit
+        ,lines.item_count                   as quantity_in_transaction_unit
         ,lines.original_transmitted_qty                                
-        ,lines.quantity_received_in_shipment        as quantity_fulfilled_received
-        ,lines.number_billed                                             as quantity_billed
-        ,(lines.asn_quantity_shipped - lines.quantity_received_in_shipment)        as qty_in_transit
-        ,uom.name                                                                        as units
-        ,lines.item_unit_price                                as rate
+        ,lines.quantity_received_in_shipment	as quantity_fulfilled_received
+        ,lines.number_billed                as quantity_billed
+        ,(lines.asn_quantity_shipped - lines.quantity_received_in_shipment)	as qty_in_transit
+        ,uom.name                           as units
+        ,lines.item_unit_price              as rate
         --,lines.acknowledgment_rate                             as rate2__
         ,lines.discount_amount 
         ,lines.purchase_price 
@@ -34,7 +34,7 @@ select
         ,lines.asn_quantity_shipped 
         ,lines.asn_shipment_date 
         ,lines.asn_estimated_delivery_date 
-        ,po.n_860_last_execution_timestamp                 as n_860_sent
+        ,po.n_860_last_execution_timestamp 	as n_860_sent
         ,po.status 
         ,CASE WHEN current_date <=
                 (
@@ -72,18 +72,15 @@ left join
 where  
         po.transaction_type ='Purchase Order' 
         and transaction_line_id > 0       ---No Main line 9864
-        --and po.po_type_id <> 5            ---Non-Inventory
         and po_types.list_item_name <> 'Non-Inventory'
         and lines.asn_quantity_shipped > lines.quantity_received_in_shipment 
-        and lines.asn_record is not null 
-        --and entity.edi_856_id = 1         --EDI = Yes       
+        and lines.asn_record is not null       
         and edi.list_item_name = 'Yes'
         and current_date <= (
                 CASE WHEN cast(lines.asn_estimated_delivery_date as date) + 14 is not Null THEN  cast(lines.asn_estimated_delivery_date as date) + 14 
                 ELSE  cast(lines.asn_shipment_date as date) + 14 END)
 --------- filter by a specific PO number 
         --and po.tranid in ('12180214323') 
-        --and po.create_date > '2021-05-01' 
         --and  lines.transaction_line_id=175
 --------- end custom filter
-order by po.tranid asc--, lines.transaction_line_id asc
+order by po.tranid asc
