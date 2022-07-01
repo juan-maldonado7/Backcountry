@@ -35,10 +35,18 @@ with po_details as
                 netsuite_sc.uom uom ON cast(item.uom_id as int64) = cast(uom.uom_id as int64)
             left join
                 netsuite2.employees assigned ON assigned.employee_id=merch2.assigned_to_id
+            left join
+                netsuite_vendor_asn.edi_document_type_status edi ON cast(entity.edi_856_id as int64) = cast(edi.list_id as int64)
+            left join
+                netsuite_sc.po_types ON cast(po.po_type_id as int64) = cast(po_types.list_id as int64)
             where  
-            po.transaction_type ='Purchase Order' and lines.asn_record is not null
+            po.transaction_type ='Purchase Order' 
+            and transaction_line_id > 0
+            and po_types.list_item_name <> 'Non-Inventory'
             and lines.asn_quantity_shipped > lines.item_count 
-            and current_date < (
+            and lines.asn_record is not null  
+            and edi.list_item_name = 'Yes'         
+            and current_date <= (
                 CASE WHEN cast(lines.asn_estimated_delivery_date as date) + 14 is not Null THEN  cast(lines.asn_estimated_delivery_date as date) + 14 
                 ELSE  cast(lines.asn_shipment_date as date) + 14 END)
     )
@@ -47,9 +55,8 @@ select
 	 merchandise_division
 	,max(count_vendors) as count_vendors
 	,max(count_orders) as count_orders
-    ,assigned_to_id
-    ,assigned_to
+  ,assigned_to
 	,count(*) as count_problems_lines
-from po_detailss
+from po_details
 group by merchandise_division	, assigned_to_id, assigned_to 
 order by merchandise_division asc
