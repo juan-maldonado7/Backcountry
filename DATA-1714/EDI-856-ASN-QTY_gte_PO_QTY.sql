@@ -9,7 +9,7 @@ with po_details as
                 entity.name 								as vendor
                 ,po.tranid 									as po_number
                 ,merch2.merchandise_division_name	        as merchandise_division
-                ,assigned.full_name     as assigned_to
+                ,assigned.full_name                         as assigned_to
                 ,merch2.assigned_to_id  
                 ,lines.transaction_line_id		            as line_id			
                 ,lines.item_count 						    as quantity_in_transaction_unit
@@ -49,13 +49,13 @@ with po_details as
             and current_date <= (
                 CASE WHEN cast(lines.asn_estimated_delivery_date as date) + 14 is not Null THEN  cast(lines.asn_estimated_delivery_date as date) + 14 
                 ELSE  cast(lines.asn_shipment_date as date) + 14 END)
-    )
+        )
 )
 select 
 	 merchandise_division
 	,max(count_vendors) as count_vendors
 	,max(count_orders) as count_orders
-  ,assigned_to
+    ,assigned_to
 	,count(*) as count_problems_lines
 from po_details
 group by merchandise_division	, assigned_to_id, assigned_to 
