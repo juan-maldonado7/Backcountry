@@ -134,7 +134,6 @@ relationships as (
               ,type.name                as category
               ,contacts.title            as job_title
               ,contacts.email
-              ,contacts.phone
               ,contacts.contact_id 
               )
           )     as relationships_tab
@@ -275,4 +274,4 @@ left join
   approvals ON general.internal_vendor_id=approvals.vendor_id
 left join 
   subsidiaries ON general.internal_vendor_id=subsidiaries.vendor_id
-where general.companyname='Asolo'
+where general.companyname='Adidas'
